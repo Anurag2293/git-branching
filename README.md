@@ -11,7 +11,8 @@ Notes from learngitbranching.js.org
    
 2. **Branching In Git** \
    Branches in Git are incredibly lightweight as well. They are simply pointers to a specific commit -- nothing more. 
-   - *To Create new branch*: `git branch <newBranchName>` 
+   - *To Create new branch*: `git branch <newBranchName>`
+   - *To Create new branch at a Commit*: `git branch <newBranchName> <commit>` (commit can be absolute or relative)
    - *To Checkout a branch*: `git checkout <name>` 
    - *To Create & Checkout a new branch*: `git checkout -b [yourbranchname]`
 
@@ -150,3 +151,44 @@ Notes from learngitbranching.js.org
      <tag>_<numCommits>_g<hash>
      ```
       Where `tag` is the closest ancestor tag in history, `numCommits` is how many commits away that `tag` is, and `<hash>` is the hash of the commit being described.
+
+
+### E. Advanced Topics
+
+1. **Rebasing Multiple Branches**
+   #### Situation
+   - We want the commits to all be in sequential order. So this means that our final tree should have C7' at the bottom, C6' above that, and so on, all in order.
+   - ![image](https://github.com/Anurag2293/git-branching/assets/83635812/958ba4b8-4d01-4a66-94ea-fb0760f17e48) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/fcf4bb8e-68b6-4d2d-a492-cc47991b0771)
+  
+   #### Solution
+   - `git rebase main bugFix`
+   - `git rebase bugFix side`
+   - `git rebase side another`
+   - `git rebase another main`
+
+2. **Multiple Parents**
+   #### Specifying Parents
+   - Like the ~ modifier, the ^ modifier also accepts an optional number after it.
+   - Rather than specifying the number of generations to go back (what ~ takes), the modifier on ^ specifies which parent reference to follow from a merge commit. Remember that merge commits have multiple parents, so the path to choose is ambiguous. 
+   - Git will normally follow the "first" parent upwards from a merge commit, but specifying a number with ^ changes this default behavior.
+   - These modifiers can be chained together.
+
+   #### Situation
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/88ae517c-24c5-4163-a4de-41fc5f820645) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/a3bec1aa-c3fc-4d9c-b5ed-73eea8dac5e1)
+
+   #### Solution
+   - `git branch bugWork main^^2^`
+   
+3. **Branch Spaghetti**
+   #### Situation
+   - Here we have main that is a few commits ahead of branches one two and three. For whatever reason, we need to update these three other branches with modified versions of the last few commits on main.
+   - Branch one needs a re-ordering of those commits and an exclusion/drop of C5. Branch two just needs a pure reordering of the commits, and three only needs one commit transferred!
+   - ![image](https://github.com/Anurag2293/git-branching/assets/83635812/a8fa80c3-6436-41c1-a24e-aa46ff406bd4) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/21f90e49-6f3a-4678-b70f-6a553d708d75)
+
+   #### Solution
+   - `git checkout one`
+   - `git cherry-pick C4 C3 C2`
+   - `git checkout two`
+   - `git cherry-pick C5 C4 C3 C2`
+   - `git branch -f three C2` 
+
