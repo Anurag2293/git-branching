@@ -76,7 +76,8 @@ Notes from learngitbranching.js.org
     ```
     git cherry-pick <Commit1> <Commit2> <...>
     ```
-   It's a very straightforward way of saying that you would like to copy a series of commits below your current location (HEAD).
+   - `git cherry-pick` will plop down a commit from anywhere in the tree onto HEAD (as long as that commit isn't an ancestor of HEAD).
+   - It's a very straightforward way of saying that you would like to copy a series of commits below your current location (HEAD).
 
 2. **Git Interactive Rebase** 
    - We can use interactive rebasing to review a series of commits you're about to rebase. 
@@ -87,3 +88,65 @@ Notes from learngitbranching.js.org
    ```
    git rebase -i HEAD~4
    ``` 
+
+### D. A Mixed Bag
+
+1. **Grabbing Just 1 Commit** 
+   - Here's a development situation that often happens: I'm trying to track down a bug but it is quite elusive. In order to aid in my detective work, I put in a few debug commands and a few print statements.
+   - All of these debugging / print statements are in their own commits. Finally I track down the bug, fix it, and rejoice.
+   - Only problem is that I now need to get my bugFix back into the main branch. If I simply fast-forwarded main, then main would get all my debug statements which is undesirable.
+   - We need to tell git to copy only one of the commits over. This is just like the levels earlier on moving work around -- we can use the same commands:
+      - `git rebase -i`
+      - `git cherry-pick`
+
+2. **Juggling Commits**
+   #### Situation
+   Here's another situation that happens quite commonly. You have some changes (newImage) and another set of changes (caption) that are related, so they are stacked on top of each other in your repository (aka one after another).
+   <br><br>
+   The tricky thing is that sometimes you need to make a small modification to an earlier commit. In this case, design wants us to change the dimensions of newImage slightly, even though that commit is way back in our history!!
+   
+   #### Solution
+   We will overcome this difficulty by doing the following:
+
+    - We will re-order the commits so the one we want to change is on top with git rebase -i
+    - We will git commit --amend to make the slight modification
+    - Then we will re-order the commits back to how they were previously with git rebase -i
+    - Finally, we will move main to this updated part of the tree to finish the level (via the method of your choosing)
+
+3. **Juggling Commits #2**
+   #### Situation
+   As you saw in the last level, we used rebase -i to reorder the commits. Once the commit we wanted to change was on top, we could easily --amend it and re-order back to our preferred order.
+   <br><br>
+   The only issue here is that there is a lot of reordering going on, which can introduce rebase conflicts.
+
+   ![Start](https://github.com/Anurag2293/git-branching/assets/83635812/15d9cfa5-2bbf-4cf6-87c3-7faa219479c0) --> ![Goal](https://github.com/Anurag2293/git-branching/assets/83635812/204ddf8c-dfbb-48e9-ad47-1b1bfc549882) 
+
+   #### Solution
+   Let's look at another method with `git cherry-pick`. 
+   - `git checkout main`
+   - `git cherry-pick C2`
+   - `git commit --amend`
+   - `git cherry-pick C3`
+   
+4. **Git Tags**
+   - Branches are easy to move around and often refer to different commits as work is completed on them. Branches are easily mutated, often temporary, and always changing.
+   - Git tags (somewhat) permanently mark certain commits as "milestones" that you can then reference like a branch.
+   - *If you leave the `commit` off, git will just use whatever HEAD is at.*
+      ```
+      git tag <tagName> <commit>
+      ```
+
+5. **Git Describe**
+   - `git describe` is used to describe where you are relative to the closest "anchor" (aka tag).
+   - Git describe can help you get your bearings after you've moved many commits backwards or forwards in history; this can happen after you've completed a git bisect (a debugging search) or when sitting down at the computer of a coworker who just got back from vacation.
+   - Git describe takes the form of:
+      ```
+      git describe <ref>
+      ```
+      Where `<ref>` is anything git can resolve into a commit. If you don't specify a `ref`, git just uses where you're checked out right now (`HEAD`).
+
+   - The output of the command looks like:
+     ```
+     <tag>_<numCommits>_g<hash>
+     ```
+      Where `tag` is the closest ancestor tag in history, `numCommits` is how many commits away that `tag` is, and `<hash>` is the hash of the commit being described.
