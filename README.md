@@ -84,7 +84,6 @@ Notes from learngitbranching.js.org
    - If you include this option, git will open up a UI to show you which commits are about to be copied below the target of the rebase. It also shows their commit hashes and messages, which is great for getting a bearing on what's what.
    - The real git interactive rebase allows you to do things like squashing (combining) commits, amending commit messages, and even editing the commits themselves.
    - Eg. To Interact with 4 Commits above HEAD
-   <br>
    ```
    git rebase -i HEAD~4
    ``` 
