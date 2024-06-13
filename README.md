@@ -192,3 +192,100 @@ Notes from learngitbranching.js.org
    - `git cherry-pick C5 C4 C3 C2`
    - `git branch -f three C2` 
 
+<br>
+<br>
+<br>
+
+## Remote
+
+### A. Push & Pull -- Git Remotes!
+
+1. **Clone Intro**
+   - `git clone` is used to create local copies of remote repositories (from github for example).
+   - Makes connection between local and remote repository.
+
+2. **Remote Branches**
+   #### Git Remote Branches
+   - The first thing after running `git clone` is that a new branch appeared in our local repository called `origin/main`. This type of branch is called a remote branch; remote branches have special properties because they serve a unique purpose.
+   - Remote branches reflect the state of remote repositories (since you last talked to those remote repositories). They help you understand the difference between your local work and what work is public -- a critical step to take before sharing your work with others.
+   - Remote branches have the special property that when you check them out, you are put into detached HEAD mode. Git does this on purpose because you can't work on these branches directly; you have to work elsewhere and then share your work with the remote (after which your remote branches will be updated).
+   - *To be clear: Remote branches are on your local repository, not on the remote repository.*
+
+   #### What is origin/?
+   - Remote branches also have a (required) naming convention -- they are displayed in the format of:
+     ```  
+     <remote name>/<branch name>
+     ```
+   - Hence, if you look at a branch named `origin/main`, the branch name is `main` and the name of the remote is `origin`.
+   - This is so common that git actually sets up your remote to be named `origin` when you git clone a repository.
+
+   `When we checkout a remote branch, we are in Detached HEAD State. The remote branch won't be updated when we commit changes to HEAD`
+
+3. **Git Fetchin'** \
+   To fetch data from a remote repository -- the command for this is conveniently named git fetch.
+
+   #### What fetch does
+   - git fetch performs two main steps, and two main steps only. It:
+      - downloads the commits that the remote has but are missing from our local repository, 
+      - updates where our remote branches point (for instance, o/main)
+   - `git fetch` essentially brings our local representation of the remote repository into synchronization with what the actual remote repository looks like (right now).
+   - `git fetch` usually talks to the remote repository through the Internet (via a protocol like http:// or git://).
+
+   #### What fetch doesn't do
+   - `git fetch`, however, does not change anything about your local state. It will not update your main branch or change anything about how your file system looks right now.
+   - You can think of running git fetch as a download step.
+
+4. **Git Pullin'**
+   - Once you have new commits available locally, you can incorporate them as if they were just normal commits on other branches. This means you could execute commands like:
+       `git cherry-pick o/main`
+       `git rebase o/main`
+       `git merge o/main`
+   - `git pull` === `git fetch` + `git merge <remoteBranch>`
+   - `git pull --rebase` === `git fetch` + `git rebase <remoteBranch>`
+
+5. **Faking Teamwork**
+   - `git fakeTeamwork`: Not a real command. Just used here to simulate teamwork in remote repository.
+
+6. **Git Pushin'**
+   - `git push` is responsible for uploading your changes to a specified remote and updating that remote to incorporate your new commits.
+   - *note -- the behavior of git push with no arguments varies depending on one of git's settings called push.default. The default value for this setting depends on the version of git you're using, but we are going to use the upstream value in our lessons. This isn't a huge deal, but it's worth checking your settings before pushing in your own projects.*
+
+7. **Diverged History**
+   - To avoid ambiguity where history has diverged, git doesn't allow you to push your changes. It actually forces you to incorporate the latest state of the remote before being able to share your work.
+   - You need to do is base your work off of the most recent version of the remote branch.
+   - Ways to do it:
+     - `git rebase`: move your work via rebasing
+       ```
+       git fetch
+       git rebase origin/main
+       git push
+       ```
+     - `git merge`: Although git merge doesn't move your work (and instead just creates a merge commit), it's a way to tell git that you have incorporated all the changes from the remote. This is because the remote branch is now an ancestor of your own branch, meaning your commit reflects all commits in the remote branch.
+       ```
+       git fetch
+       git merge origin/main
+       git push
+       ```
+   - We can use `git pull` and `git push` as a shorthand technique for achieving above.
+
+8. **Locked Main**
+   #### Remote Rejected
+   - If you work on a large collaborative team it's likely that main is locked and requires some Pull Request process to merge changes. If you commit directly to main locally and try pushing you will be greeted with a message similar to this:
+   - `! [remote rejected] main -> main (TF402455: Pushes to this branch are not permitted; you must use a pull request to update this branch.)`
+
+   #### Why was it rejected!
+   - The remote rejected the push of commits directly to main because of the policy on main requiring pull requests to instead be used.
+   - You meant to follow the process creating a branch then pushing that branch and doing a pull request, but you forgot and committed directly to main. Now you are stuck and cannot push your changes.
+
+   #### The solution
+   - Create another branch called feature and push that to the remote. Also reset your main back to be in sync with the remote otherwise you may have issues next time you do a pull and someone else's commit conflicts with yours.
+   - ![image](https://github.com/Anurag2293/git-branching/assets/83635812/351163f7-4e7b-420f-8132-dd2fce08cdff) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/8f6d2786-9497-49ae-9f92-5f02579d3da2)
+   - ```
+     git reset --hard origin/main
+     git checkout -b feature C2
+     git push origin feature
+     ```
+
+
+   
+   
