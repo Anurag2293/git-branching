@@ -68,6 +68,23 @@ Notes from learngitbranching.js.org
    2. `git revert`
       - While resetting works great for local branches on your own machine, its method of "rewriting history" doesn't work for remote branches that others are using.
       - In order to reverse changes and share those reversed changes with others, we need to use git revert. Let's see it in action.
-      - Eg: `git revert HEAD` 
-   
-   
+      - Eg: `git revert HEAD`
+     
+### C. Moving Work Around
+
+1. **Git Cherry-pick** 
+    ```
+    git cherry-pick <Commit1> <Commit2> <...>
+    ```
+   It's a very straightforward way of saying that you would like to copy a series of commits below your current location (HEAD).
+
+2. **Git Interactive Rebase** 
+   - We can use interactive rebasing to review a series of commits you're about to rebase. 
+   - *All interactive rebase means Git is using the rebase command with the -i option.*
+   - If you include this option, git will open up a UI to show you which commits are about to be copied below the target of the rebase. It also shows their commit hashes and messages, which is great for getting a bearing on what's what.
+   - The real git interactive rebase allows you to do things like squashing (combining) commits, amending commit messages, and even editing the commits themselves.
+   - Eg. To Interact with 4 Commits above HEAD
+   <br>
+   ```
+   git rebase -i HEAD~4
+   ``` 
