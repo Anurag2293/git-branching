@@ -1,5 +1,5 @@
 # Git Branching
-Notes from learngitbranching.js.org
+Notes from [learngitbranching.js.org](https://learngitbranching.js.org)
 
 ## Main 
 
