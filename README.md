@@ -319,7 +319,155 @@ Notes from [learngitbranching.js.org](https://learngitbranching.js.org)
    ````
 
 2. **Merging with Remotes**
+   #### Why not merge?
+   In order to push new updates to the remote, all you need to do is incorporate the latest changes from the remote. That means you can either rebase or merge in the remote branch (e.g. o/main).
+
+   #### Pros and Cons of Rebasing
+   ##### Pros:
+   - Rebasing makes your commit tree look very clean since everything is in a straight line
    
+   ##### Cons:
+   - Rebasing modifies the (apparent) history of the commit tree.
+   - For example, commit C1 can be rebased past C3. It then appears that the work for C1' came after C3 when in reality it was completed beforehand.
+
+   #### Situation
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/c91d234d-9936-4527-9c05-fa7185f700ee) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/e9f88d80-8382-4c6a-a2a8-b8d0826a66a7)
+
+   #### Solution
+   ````
+   git checkout main
+   git pull
+   git merge side1
+   git merge side2
+   git merge side3
+   git push
+   ````
+
+3. **Remote Tracking**
+   #### Remote-Tracking branches
+   - Git know the main branch was related to o/main. This connection is demonstrated clearly in two scenarios:
+      - During a pull operation, commits are downloaded onto `o/main` and then merged into the `main` branch. The implied target of the merge is determined from this connection.
+      - During a push operation, work from the `main` branch was pushed onto the remote's `main` branch (which was then represented by `o/main` locally). The destination of the push is determined from the connection between `main` and `o/main`.
+   - "remote tracking" property of branches: The main branch is set to track o/main -- this means there is an implied merge target and implied push destination for the main branch.
+   - when you clone a repository with git, this property is actually set for you automatically.
+   - During a clone, git creates a remote branch for every branch on the remote (aka branches like o/main). It then creates a local branch that tracks the currently active branch on the remote, which is main in most cases.
+   - `local branch "main" set to track remote branch "o/main" `
+   - There are two ways to set this property.
+      - The first is to checkout a new branch by using a remote branch as the specified ref. Running
+        ````
+        git checkout -b totallyNotMain o/main
+        ````
+        reates a new branch named totallyNotMain and sets it to track o/main.
+      - Another way to set remote tracking on a branch is to simply use the git branch -u option. Running
+        ````
+        git branch -u o/main foo
+        ````
+        will set the foo branch to track o/main. If foo is currently checked out you can even leave it off:
+        ````
+        git branch -u o/main
+        ````
+
+   #### Situation
+   For this level let's push work onto the main branch on remote while not checked out on main locally. You should instead a branch named side which the goal diagram will show.
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/2dab18b2-f44e-4071-be77-e17e573e4c44) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/d35022a4-910c-4f7e-8148-53787ec0bb0e)
+
+   #### Solution
+   ````
+   git -b checkout side o/main
+   git commit
+   git pull --rebase
+   git push
+   ````
+
+4. **Git Push Arguments**
+   ````
+   git push <remote> <place>
+   ````
+
+   Eg. `git push origin main`
+   - Go to the branch named "main" in my repository, grab all the commits, and then go to the branch "main" on the remote named "origin". Place whatever commits are missing on that branch and then tell me when you're done.
+   - By specifying main as the "place" argument, we told git where the commits will come from and where the commits will go. It's essentially the "place" or "location" to synchronize between the two repositories.
+
+
+5. **Git Push Arguments -- Expanded**
+   #### ```<place>``` argument details
+   In order to specify both the source and the destination of <place>, simply join the two together with a colon:
+   ````
+   git push origin <source>:<destination>
+   ````
+   This is commonly referred to as a colon refspec.
+   Refspec is just a fancy name for a location that git can figure out (like the branch foo or even just HEAD~1).
+
+   #### Situation
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/fc363981-0f90-4189-9cab-41aa34b98167) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/5be9b1c8-39cb-4c8e-8d1c-7c920d062e0f)
+
+   #### Solution
+   ````
+   git push orign main^:foo
+   git push origin foo:main
+   ````
+
+6. **Fetch Arguments**
+   #### The ````<place>```` parameter
+   If you specify a place with git fetch like in the following command:
+   ````
+   git fetch origin foo
+   ````
+   Git will go to the foo branch on the remote, grab all the commits that aren't present locally, and then plop them down onto the o/foo branch locally.
+
+   #### Expanded (NOT RECOMMENDED TO FETCH COMMIT DIRECTLY TO LOCAL BRANCH)
+   ````
+   git fetch origin <source>:<destination>
+   ````
+   - To fetch commits directly onto a local branch, specify it with a colon refspec.
+   - You can't fetch commits onto a branch that is checked out, but otherwise git will allow this.
+   - Here is the only catch though -- <source> is now a place on the remote and <destination> is a local place to put those commits. *It's the exact opposite of git push, and that makes sense since we are transferring data in the opposite direction!*
+   - If the `<destination>` doesn't exists, then Git will make the destination locally before fetching.
+   - ***If git fetch receives no arguments, it just downloads all the commits from the remote onto all the remote branches...***
+  
+   #### Situation
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/b6724200-466a-4d55-81b5-bd4d1be9bd86) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/afd9e507-d393-48e0-b4dd-93100add3280)
+
+   #### Solution
+   ````
+   git fetch origin C3:foo
+   git fetch origin C6:main
+   git checkout foo
+   git merge main
+   ````
+
+7. **Source of Nothing**
+   #### Oddities of `<source>`
+   Git abuses the <source> parameter in two weird ways. These two abuses come from the fact that you can technically specify "nothing" as a valid source for both git push and git fetch. The way you specify nothing is via an empty argument:
+   - `git push origin :side` : Deletes the `side` branch on remote by pushing the concept of "nothing" to it.
+   - `git fetch origin :bugFix` : Fetching "nothing" to a place locally actually makes a new branch.
+
+8. **Pull Arguments**
+   - Running git fetch with the same arguments specified and then merging in where those commits ended up.
+   - `git pull origin foo` === `git fetch origin foo; git merge o/foo`
+   - `git pull origin bar:bugFix` === `git fetch origin bar:bugFix; git merge bugFix`
+
+   #### Example 1
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/678c9f3f-80a0-49be-9f43-7e48cabcc296) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/ba45175f-c811-41d4-aa24-a34e6cdbdaf2)
+   - `git pull origin main`
+   - By specifying main we downloaded commits onto o/main just as normal. Then we merged o/main to our currently checked out location which is not the local branch main.
+   - *For this reason it can actually make sense to run git pull multiple times (with the same args) from different locations in order to update multiple branches.*
+
+   #### Example 2
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/5f87ecd4-6736-4a46-a8b5-b84bc37aaeb0) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/d39e0b51-82bb-40c6-b889-84717d72091d)
+   - `git pull origin main:foo`
+   - We created a new branch locally named foo, downloaded commits from remote's main onto that branch foo, and then merged that branch into our currently checked out branch bar.
+
+   #### Situation
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/52aaea90-58b2-42ea-b69b-4b62193ada76) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/6fdc48b6-e581-4ce7-a628-2c6b8abd7dd2)
+
+   #### Solution
+   ````
+   git pull origin C3:foo
+   git pull origin C2:side 
+   ````
+
+
+
 
    
-
