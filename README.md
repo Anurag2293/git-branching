@@ -290,5 +290,36 @@ Notes from [learngitbranching.js.org](https://learngitbranching.js.org)
 ### B. To Origin And Beyond -- Advanced Git Remotes! 
 
 1. **Push Main!**
+   #### Merging feature branches
+   - It's common for developers on big projects to do all their work on feature branches (off of main) and then integrate that work only once it's ready. This is similar to the previous lesson (where side branches get pushed to the remote), but here we introduce one more step.
+   - Some developers only push and pull when on the main branch -- that way main always stays updated to what is on the remote (o/main).
+   - So for this workflow we combine two things:
+     - integrating feature branch work onto `main`, and
+     - pushing and pulling from the remote
+
+   #### Refresher on how to update main and push work
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/9a913f58-4afa-4dda-ace8-059ff46d61b9) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/f59ea3f3-39eb-47b7-bb1c-93f287ba348e)
+
+   ````
+   git pull --rebase
+   git push
+   ````
+
+   #### Situation
+   ![image](https://github.com/Anurag2293/git-branching/assets/83635812/05862051-330a-4a0e-881a-058432671edd) ==> ![image](https://github.com/Anurag2293/git-branching/assets/83635812/3004d8a4-9727-4c89-876f-df91b6bedcba)
+
+   #### Solution
+   ````
+   git fetch
+   git rebase o/main side1
+   git rebase side1 side2
+   git rebase side2 side3
+   git rebase side3 main # Fast Forward
+   git push
+   ````
+
+2. **Merging with Remotes**
    
+
    
+
